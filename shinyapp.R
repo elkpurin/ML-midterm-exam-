@@ -22,7 +22,7 @@ ui<-fluidPage(
       sliderInput("proposal10", "do you think how many score do you get on proposal assignment?",
                   min = 0, max = 10, value = 5),
       sliderInput("proj20", "do you think how many score do you get on project assignment?",
-                  min = 0, max = 10, value = 5)
+                  min = 0, max = 20, value = 5)
     ),
     mainPanel(
       tabsetPanel(
