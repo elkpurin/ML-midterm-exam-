@@ -1,6 +1,8 @@
 library(shiny)
 library(shinythemes)
 
+load("dat_model2.RData")
+
 ui<-fluidPage(
   
   titlePanel("Predict your own grade!"),
@@ -21,16 +23,20 @@ ui<-fluidPage(
                   min = 0, max = 10, value = 5)
     ),
     mainPanel(
-      verbatimTextOutput("pred"),
-      verbatimTextOutput("pred_final")
+      tabsetPanel(
+        tabPanel("my recomendation",
+                 h2("my recomendation"), 
+                 verbatimTextOutput("pred"),
+                 plotOutput("midplot"),
+                 h4("your score compare to avarage midterm score")),
+        tabPanel("predict final score",
+                 verbatimTextOutput("pred_final"))
+      )
     )
   )
 )
 
 server<-function(input, output) {
-  
-  
-  load("dat_model.RData")
   
   df<-reactive({
     
@@ -52,6 +58,12 @@ server<-function(input, output) {
     pred_lm.reac<-reactive({
       as.character(round(predict(fit.lm, newdata = df())))
     })
+    
+output$midplot<-renderPlot(
+  ggplot() + geom_histogram(data = score_train, aes(x=mid25), bins = 20) + 
+    geom_vline(data = score_train, xintercept = mean(score_train$mid25), linetype = 2, size = 1, col = "blue") +
+    geom_vline(data = df(), xintercept = mean(df()$mid25), linetype = 2 ,size = 1)
+)
 
 output$pred<-renderText(
   

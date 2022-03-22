@@ -74,7 +74,7 @@ score_test<-score_test[,-3]
 score_test<-score_test[,-1]
 
 ##SMOTE
-score_smote<-SLS(score_train[,-7], score_train[, 7], K=5, C=5)
+score_smote<-SLS(score_train[,-7], score_train[,7], K=3, C=5)
 score_smote<-score_smote$data
 glimpse(score_smote)
 table(score_smote$class)
