@@ -5,6 +5,8 @@ load("dat_model2.RData")
 
 ui<-fluidPage(
   
+  theme = shinytheme("superhero"),
+  
   titlePanel("Predict your own grade!"),
   
   sidebarLayout(
@@ -25,6 +27,7 @@ ui<-fluidPage(
     mainPanel(
       tabsetPanel(
         tabPanel("my recomendation",
+                 h5("F,D,D+ grade are not recommend to go on with your class & other grade are acceptable"),
                  h2("my recomendation"), 
                  verbatimTextOutput("pred"),
                  plotOutput("midplot"),
@@ -39,7 +42,6 @@ ui<-fluidPage(
 server<-function(input, output) {
   
   df<-reactive({
-    
     data.frame(
       mid25 = as.numeric(as.character(input$mid25)),
       att5 = as.numeric(as.character(input$att5)),
@@ -48,7 +50,6 @@ server<-function(input, output) {
       proposal10 = as.numeric(as.character(input$proposal10)),
       proj20 = as.numeric(as.character(input$proj20)),
       stringsAsFactors = FALSE)
-    
   })
 
     pred.reac<-reactive({
@@ -66,10 +67,8 @@ output$midplot<-renderPlot(
 )
 
 output$pred<-renderText(
-  
   ifelse(pred.reac()==0, "THE SHOW MUST GO ON!!!!","You should go to the register center")
-  
-       )
+)
 
 output$pred_final<-renderText(
   print(paste0("your final grade is about ", pred_lm.reac() ," point", "(with 69% accuracy)"))
