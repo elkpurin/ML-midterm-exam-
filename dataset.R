@@ -3,6 +3,7 @@ library(tidyverse)
 library(naniar)
 library(smotefamily)
 library(caret)
+library(naivebayes)
 
 vars<-c("id", "mid25", "final25", "att5", "prac5", "crit10", "proposal10", "proj20", "grade")
 
@@ -112,77 +113,47 @@ p<-as.numeric(as.character(predict(fit.rf, newdata = id1, type = "raw")))
 class(p)
 p<-as.character(p)
 
-dat$mid25<-data.frame(input$mid)
-dat$att5<-input$att
-dat$prac5<-input$prac
-dat$crit10<-input$crit
-dat$proposal10<-input$prop
-dat$porj20<-input$proj
 
-vars2<-c("mid25", "att5", "prac5", "crit10", "proposal10", "proj20")
+#predict your final score
+final_train<-rbind(rep61_1, rep61_2)
+final_train<-rbind(final_train, rep62_2)
+final_train<-rbind(final_train, rep63_1)
+str(final_train)
+final_train$mid25<-as.numeric(final_train$mid25)
+complete.cases(final_train)
+final_train<-final_train[-71,]
 
-fake<-id1[-1,]
+final_score<-final_train[,2:8]
+final_score<-final_score[,c(1,3,4,5,6,7,2)]
 
-df.test<-transpose(data.frame(
-  Value = as.character(c(25,
-                         5,
-                         5,
-                         6,
-                         8,
-                         20)),
-  stringsAsFactors = FALSE))
+final_train.id<-createDataPartition(final_score$final25, p = 0.7, list=F, times=1)
+train.final<-final_score[final_train.id,] #70%
+test.final<-final_score[-final_train.id,] #30%
 
+final.fmla<-as.formula(final25~mid25)
 
-tran<-transpose(df.test[])
-
-colnames(tran)<-colnames(id1)
-
-vars
-vars2
-
-df<-reactive({
-  
-    df<-data.frame(
-      mid25 = as.character(input$mid25),
-      att5 = as.character(input$att5),
-      prac5 = as.character(input$prac5), 
-      crit10 = as.character(input$crit10),
-      proposal10 = as.character(input$proposal10),
-      proj20 = as.character(input$proj20),
-      stringsAsFactors = FALSE)
-  
-})
-
-if(pred.reac()==0){
-  print("THE SHOW MUST GO ON!!!!")
-} else {
-  print("you should go to the register center")
-}
-
-
-
-fit.lm<-lm(final.fmla, data = score_train)
+fit.lm<-lm(final.fmla, data = train.final)
 summary(fit.lm)
+plot(fit.lm)
 
-score_test2$pred_lm<-predict(fit.lm, newdata = score_test)
+final_score$pred_lm<-predict(fit.lm, final_score)
 
-predict(fit.lm, newdata = id1)
-
-final.fmla<-as.formula(final25~mid25+crit10)
-
-str(rep63_2)
-score_test2<-rep63_2[,-1]
-str(score_test2)
-score_test2$mid25<-as.numeric(score_test$mid25)
-score_test2[is.na(score_test2)] <- 0
-score_test2$proposal10<-as.numeric(score_test$proposal10)
-score_test2$proj20<-as.numeric(score_test$proj20)
-
-
-ggplot(score_test2, aes(x = pred_lm, y = final25)) + geom_point()
-
-score_test2%>%mutate(residual = final25-pred_lm)%>%
+final_score%>%mutate(residual = final25-pred_lm)%>%
   summarize(rmse = sqrt(mean(residual^2)))
+
+final_score.nb<-final_train[,c(-1,-3)]
+
+fit.nb<-naive_bayes(grade~mid25, data = final_score.nb)
+nb<-predict(fit.nb, id1, type = "prob")
+
+as.data.frame(round(nb, digits = 2))
+
+
+
+
+
+
+
 
 
 
