@@ -9,7 +9,7 @@ vars<-c("id", "mid25", "final25", "att5", "prac5", "crit10", "proposal10", "proj
 
 ##train data set
 #61-1
-rep61_1<-read_excel("/Users/purin/Library/Mobile Documents/com~apple~CloudDocs/Purin's Mac/Machine Learning/midterm exam/report 61-1.xlsx")
+rep61_1<-read_excel("report 61-1.xlsx")
 str(rep61_1)
 head(rep61_1)
 rep61_1<-rep61_1[-2,]
@@ -18,14 +18,14 @@ names(rep61_1)<-vars
 table(rep61_1$grade)
 
 #61-2
-rep61_2<-read_excel("/Users/purin/Library/Mobile Documents/com~apple~CloudDocs/Purin's Mac/Machine Learning/midterm exam/report 61-2.xlsx")
+rep61_2<-read_excel("report 61-2.xlsx")
 str(rep61_2)
 rep61_2<-rep61_2[,c(1,5,9,10,11,12,13,14,16)]
 names(rep61_2)<-vars
 table(rep61_2$grade)
 
 #62-2
-rep62_2<-read_excel("/Users/purin/Library/Mobile Documents/com~apple~CloudDocs/Purin's Mac/Machine Learning/midterm exam/report 62-2.xlsx")
+rep62_2<-read_excel("report 62-2.xlsx")
 str(rep62_2)
 rep62_2<-rep62_2[,c(1,2,3,4,5,6,7,8,12)]
 rep62_2<-rep62_2[,c(1,2,8,3,4,5,6,7,9)]
@@ -33,7 +33,7 @@ names(rep62_2)<-vars
 table(rep62_2$grade)
 
 #63-1
-rep63_1<-read_excel("/Users/purin/Library/Mobile Documents/com~apple~CloudDocs/Purin's Mac/Machine Learning/midterm exam/63-1.xlsx")
+rep63_1<-read_excel("63-1.xlsx")
 str(rep63_1)
 head(rep63_1)
 rep63_1<-rep63_1[,c(1,5,9,10,11,12,13,14,17)]
@@ -50,7 +50,7 @@ score_train<-score_train[-71,]
 
 ##test data set
 #63-2
-rep63_2<-read_excel("/Users/purin/Library/Mobile Documents/com~apple~CloudDocs/Purin's Mac/Machine Learning/midterm exam/63-2.xlsx")
+rep63_2<-read_excel("63-2.xlsx")
 str(rep63_2)
 head(rep63_2)
 rep63_2<-rep63_2[c(-1,-2),]
@@ -180,13 +180,8 @@ x%>%mutate(ypos = cumsum(value)-0.5*value) %>%
   ggplot(aes(x="", y=value, fill=grade)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0) +
-  theme_void() + 
-  theme(legend.position="none") +
   geom_text(aes(y = ypos, label = grade), color = "white", size=4) +
   scale_fill_brewer(palette="Set2")
-
-
-
 
 
 
