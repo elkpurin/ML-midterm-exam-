@@ -15,12 +15,14 @@ head(rep61_1)
 rep61_1<-rep61_1[-2,]
 rep61_1<-rep61_1%>%rename("grade" = "...9")
 names(rep61_1)<-vars
+table(rep61_1$grade)
 
 #61-2
 rep61_2<-read_excel("/Users/purin/Library/Mobile Documents/com~apple~CloudDocs/Purin's Mac/Machine Learning/midterm exam/report 61-2.xlsx")
 str(rep61_2)
 rep61_2<-rep61_2[,c(1,5,9,10,11,12,13,14,16)]
 names(rep61_2)<-vars
+table(rep61_2$grade)
 
 #62-2
 rep62_2<-read_excel("/Users/purin/Library/Mobile Documents/com~apple~CloudDocs/Purin's Mac/Machine Learning/midterm exam/report 62-2.xlsx")
@@ -28,6 +30,7 @@ str(rep62_2)
 rep62_2<-rep62_2[,c(1,2,3,4,5,6,7,8,12)]
 rep62_2<-rep62_2[,c(1,2,8,3,4,5,6,7,9)]
 names(rep62_2)<-vars
+table(rep62_2$grade)
 
 #63-1
 rep63_1<-read_excel("/Users/purin/Library/Mobile Documents/com~apple~CloudDocs/Purin's Mac/Machine Learning/midterm exam/63-1.xlsx")
@@ -59,6 +62,7 @@ score_test$mid25<-as.numeric(score_test$mid25)
 score_test[is.na(score_test)] <- 0
 score_test$proposal10<-as.numeric(score_test$proposal10)
 score_test$proj20<-as.numeric(score_test$proj20)
+table(rep63_2$grade)
 
 ##recode grade & remove final score
 #1)I,F,D,D+=withdraw(1) 
@@ -141,14 +145,45 @@ final_score$pred_lm<-predict(fit.lm, final_score)
 final_score%>%mutate(residual = final25-pred_lm)%>%
   summarize(rmse = sqrt(mean(residual^2)))
 
+#predict grade
 final_score.nb<-final_train[,c(-1,-3)]
+table(final_score.nb$grade)
 
-fit.nb<-naive_bayes(grade~mid25, data = final_score.nb)
+fit.nb<-naive_bayes(grade~mid25, data = final_score.nb, laplace = 1)
+
+final_score.nb$pred<-predict(fit.nb, final_score.nb, type = "class")
+
+table(final_score.nb$pred, final_score.nb$grade)
+mean(final_score.nb$pred == final_score.nb$grade) #acc = 63.7%
+
 nb<-predict(fit.nb, id1, type = "prob")
 
-as.data.frame(round(nb, digits = 2))
+nb.df<-as.data.frame(round(nb, digits = 2))
 
+library(treemapify)
+library(ggplot2)
+install.packages("waffle", repos = "https://cinc.rud.is")
+library(waffle)
 
+t.nb.df<-as.data.frame(t(nb.df))
+
+grade <- c("D+", "D", "C+", "C", "B+", "B", "A")
+value <- as.vector(n.nb.df)
+
+x<-as.data.frame(grade)
+x$value<-t.nb.df[,1]*100
+
+ggplot(x, aes(area = value, fill = grade, label = value)) +
+  geom_treemap() + geom_treemap_text()
+
+x%>%mutate(ypos = cumsum(value)-0.5*value) %>%
+  ggplot(aes(x="", y=value, fill=grade)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="none") +
+  geom_text(aes(y = ypos, label = grade), color = "white", size=4) +
+  scale_fill_brewer(palette="Set2")
 
 
 
