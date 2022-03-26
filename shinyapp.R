@@ -1,9 +1,12 @@
 library(shiny)
 library(shinythemes)
 library(devtools)
-devtools::install_github("hadley/emo")
 library(naivebayes)
 library(scales)
+library(ggplot2)
+library(tidyverse)
+library(caret)
+library(ranger)
 
 load("dat_model2.RData")
 
@@ -15,10 +18,10 @@ ui<-fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      numericInput("mid25", "fill your midterm score:", value = NA, 
+      numericInput("mid25", "Fill your midterm score:", value = NA, 
                   min = 0, max = 25, step = 1),
       submitButton("Update", icon("refresh")),
-      h4("Improving the suggested prediction! \nsliding the question below to evaluate yourself and then click Update"),
+      h4("Improving the prediction! \nsliding your answer on the question below to evaluate yourself and then click Update"),
       sliderInput("att5", "How often did you attend to the class?", 
                   min = 0, max = 5, value = 0),
       sliderInput("prac5", "Do you think how many score you should get from your homeworks (0 out of 5)",
@@ -35,8 +38,8 @@ ui<-fluidPage(
     mainPanel(
       tabsetPanel(
         tabPanel("Suggestion",
-                 h6(paste0("Noted: F,D,D+ grade are not recommend to keep going on with your class (you are under the risk) but other grade are acceptable", 
-                           emo::ji("+1"))),
+                 h6(paste0("Noted: F,D,D+ grade are not recommend to keep going on with your class (you are under the risk) but other grade are acceptable" 
+                           )),
                  h2("your suggestion"), 
                  verbatimTextOutput("pred"),
                  plotOutput("midplot")),
@@ -93,7 +96,8 @@ output$midplot<-renderPlot({
 })
 
 output$pred<-renderText(
-  ifelse(pred.reac()==0, "THE SHOW MUST GO ON!! keep going! you do the great job","You should go to the register center and get the W. ASAP")
+  ifelse(pred.reac()==0, paste0("Keep going! you did the great job"),
+         paste0("Contact your teacher to get the W."))
 )
 
 output$pred_final<-renderText(

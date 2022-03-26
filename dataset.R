@@ -93,7 +93,7 @@ fmla<-as.formula(class~mid25+att5+prac5+crit10+proposal10+proj20)
 
 tgrid <- expand.grid(.mtry = 2:4,.splitrule = "gini",.min.node.size = c(10, 20))
 fit.rf<-train(fmla, data=train, method="ranger")
-fit.rf
+class(fit.rf)
 
 #train predict
 train$pred<-predict(fit.rf, train, type="raw")
@@ -160,10 +160,6 @@ nb<-predict(fit.nb, id1, type = "prob")
 
 nb.df<-as.data.frame(round(nb, digits = 2))
 
-library(treemapify)
-library(ggplot2)
-install.packages("waffle", repos = "https://cinc.rud.is")
-library(waffle)
 
 t.nb.df<-as.data.frame(t(nb.df))
 
